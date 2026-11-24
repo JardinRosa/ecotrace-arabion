@@ -1,26 +1,24 @@
-# reportes.py - analisis de datos (ranking, estadisticas, historia)
-# aqui no se muestra nada, solo se devuelven tablas para que app.py las use
 
 import os
 import statistics
 
 import pandas as pd
 
-# nombres de columnas del csv de Canada
+
 COL_MOTOR = "Engine size (L)"
 COL_CONSUMO = "Combined (L/100 km)"
 COL_CO2 = "CO2 emissions (g/km)"
 COL_COMBUSTIBLE = "Fuel type"
 COL_ANIO = "Model year"
 
-# nombres de columnas de precios_historicos.csv (revisar que coincidan con el archivo)
+
 COL_FECHA = "vigente_desde"
 COL_TIPO_COMB = "combustible"
 COL_PRECIO = "precio"
 
 
 def ranking(catalogo, precios, factores):
-    # arma una fila por cada vehiculo del catalogo
+    
     filas = []
     for v in catalogo:
         filas.append({
@@ -30,18 +28,18 @@ def ranking(catalogo, precios, factores):
             "CO2 (kg por 100 km)": round(v.co2_100km(factores), 2),
         })
     df = pd.DataFrame(filas)
-    # del mas barato al mas caro
+   
     df = df.sort_values("Costo (B/. por 100 km)").reset_index(drop=True)
     return df
 
 
 def estadisticas(df_limpio):
-    # solo carros a gasolina (X y Z)
+    
     df = df_limpio[df_limpio[COL_COMBUSTIBLE].isin(["X", "Z"])]
     motor = df[COL_MOTOR].tolist()
     consumo = df[COL_CONSUMO].tolist()
 
-    # regresion lineal: consumo = pendiente * motor + intercepto
+   
     regresion = statistics.linear_regression(motor, consumo)
 
     return {
@@ -54,12 +52,12 @@ def estadisticas(df_limpio):
 
 
 def comparar_tipos(catalogo):
-    # pasamos el catalogo a tabla para poder usar groupby
+ 
     df = pd.DataFrame([{"Tipo": v.tipo, "Consumo": v.consumo} for v in catalogo])
     res = df.groupby("Tipo")["Consumo"].mean().reset_index()
     res = res.rename(columns={"Consumo": "Consumo promedio (L/100 km)"})
 
-    # diferencia en % respecto al tipo que menos gasta
+   
     menor = res["Consumo promedio (L/100 km)"].min()
     res["Diferencia (%)"] = (res["Consumo promedio (L/100 km)"] - menor) / menor * 100
     res = res.round(2)
@@ -67,7 +65,7 @@ def comparar_tipos(catalogo):
 
 
 def datos_dispersion(df_limpio):
-    # solo motor y consumo para el grafico
+  
     df = df_limpio[df_limpio[COL_COMBUSTIBLE].isin(["X", "Z"])]
     df = df[[COL_MOTOR, COL_CONSUMO]].copy()
     df.columns = ["Motor (L)", "Consumo (L/100 km)"]
@@ -75,7 +73,7 @@ def datos_dispersion(df_limpio):
 
 
 def exportar_reporte(df_ranking):
-    # crea la carpeta si no existe y guarda el csv
+   
     os.makedirs("reportes", exist_ok=True)
     ruta = os.path.join("reportes", "reporte.csv")
     df_ranking.to_csv(ruta, index=False, encoding="utf-8-sig")
@@ -83,7 +81,7 @@ def exportar_reporte(df_ranking):
 
 
 def tendencia_anual(df_historico):
-    # solo gasolina, un promedio por cada anio modelo
+    
     df = df_historico[df_historico[COL_COMBUSTIBLE].isin(["X", "Z"])]
     res = df.groupby(COL_ANIO).agg(
         consumo=(COL_CONSUMO, "mean"),
@@ -97,7 +95,7 @@ def tendencia_anual(df_historico):
 
 def precio_por_anio(precios_historicos):
     df = precios_historicos.copy()
-    # solo la gasolina de 91
+ 
     df = df[df[COL_TIPO_COMB] == "gasolina_91"]
     df["Año"] = df[COL_FECHA].dt.year
     res = df.groupby("Año")[COL_PRECIO].mean().reset_index()
@@ -107,16 +105,16 @@ def precio_por_anio(precios_historicos):
 
 def evolucion_modelo(df_historico, marca, nombres, precios_anio):
     df = df_historico.copy()
-    # comparo en minuscula y sin espacios para que no falle por detalles
+    
     marca_ok = df["Make"].str.strip().str.lower() == marca.strip().lower()
     nombres_ok = df["Model"].str.strip().str.lower().isin([n.strip().lower() for n in nombres])
     df = df[marca_ok & nombres_ok & (df[COL_COMBUSTIBLE] == "X")]
 
-    # por anio me quedo con el menor consumo
+    
     res = df.groupby(COL_ANIO)[COL_CONSUMO].min().reset_index()
     res.columns = ["Año", "Consumo (L/100 km)"]
 
-    # unir con el precio promedio del anio y calcular el costo (ecuacion 8)
+    
     res = res.merge(precios_anio, on="Año", how="left")
     res["Costo (B/. por 100 km)"] = res["Consumo (L/100 km)"] * res["Precio promedio (B/. por litro)"]
     res = res[["Año", "Consumo (L/100 km)", "Costo (B/. por 100 km)"]].round(2)
