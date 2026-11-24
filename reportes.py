@@ -10,8 +10,7 @@ COL_COMBUSTIBLE = "Fuel type"
 COL_AÑO = "Model year"
 
 COL_FECHA = "vigente_desde"
-COL_TIPO_COMB = "combustible"
-COL_PRECIO = "precio"
+COL_PRECIO_91 = "gasolina_91"
 
 
 def ranking(catalogo, precios, factores):
@@ -81,16 +80,15 @@ def tendencia_anual(df_historico):
     return res
 
 
-def precio_por_anio(precios_historicos):
+def precio_por_año(precios_historicos):
     df = precios_historicos.copy()
-    df = df[df[COL_TIPO_COMB] == "gasolina_91"]
     df["Año"] = df[COL_FECHA].dt.year
-    res = df.groupby("Año")[COL_PRECIO].mean().reset_index()
+    res = df.groupby("Año")[COL_PRECIO_91].mean().reset_index()
     res.columns = ["Año", "Precio promedio (B/. por litro)"]
     return res
 
 
-def evolucion_modelo(df_historico, marca, nombres, precios_anio):
+def evolucion_modelo(df_historico, marca, nombres, precios_año):
     df = df_historico.copy()
     marca_ok = df["Make"].str.strip().str.lower() == marca.strip().lower()
     nombres_ok = df["Model"].str.strip().str.lower().isin([n.strip().lower() for n in nombres])
@@ -99,8 +97,11 @@ def evolucion_modelo(df_historico, marca, nombres, precios_anio):
     res = df.groupby(COL_AÑO)[COL_CONSUMO].min().reset_index()
     res.columns = ["Año", "Consumo (L/100 km)"]
 
-    res = res.merge(precios_anio, on="Año", how="left")
+    res = res.merge(precios_año, on="Año", how="left")
     res["Costo (B/. por 100 km)"] = res["Consumo (L/100 km)"] * res["Precio promedio (B/. por litro)"]
     res = res[["Año", "Consumo (L/100 km)", "Costo (B/. por 100 km)"]].round(2)
     return res
+
+
+precio_por_anio = precio_por_año
 
