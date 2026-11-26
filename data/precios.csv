@@ -1,4 +1,4 @@
 combustible,precio_litro,vigente_desde,vigente_hasta,fuente
-gasolina_91,1.102,2026-11-13,2026-11-27,SNE MIPRE-2026-0044821
-gasolina_95,1.231,2026-11-13,2026-11-27,SNE MIPRE-2026-0044821
-diesel,1.434,2026-11-13,2026-11-27,SNE MIPRE-2026-0044821
+gasolina_91,1.004,2026-11-27,2026-12-11,SNE Historico-Precio-Tope-25.11.2026
+gasolina_95,1.125,2026-11-27,2026-12-11,SNE Historico-Precio-Tope-25.11.2026
+diesel,1.300,2026-11-27,2026-12-11,SNE Historico-Precio-Tope-25.11.2026
