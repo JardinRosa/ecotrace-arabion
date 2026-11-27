@@ -1,4 +1,4 @@
-"""EcoTrace AI - Interfaz con Streamlit.
+"""EcoTrace - Interfaz con Streamlit.
 
 Ejecutar:  python -m streamlit run app.py
 """
@@ -12,7 +12,7 @@ import datos
 import reportes
 from modelos import Vehiculo
 
-st.set_page_config(page_title="EcoTrace AI", page_icon="🚗", layout="wide")
+st.set_page_config(page_title="EcoTrace", page_icon="🚗", layout="wide")
 
 NOMBRE_COMBUSTIBLE = {"gasolina_91": "Gasolina 91", "gasolina_95": "Gasolina 95", "diesel": "Diésel"}
 
@@ -88,7 +88,7 @@ def mostrar_resumen(res):
 # Barra lateral
 # ---------------------------------------------------------------------------
 fecha_vigencia = pd.to_datetime(vigencia).strftime("%d/%m/%Y")
-st.sidebar.title("EcoTrace AI")
+st.sidebar.title("EcoTrace")
 st.sidebar.metric("Gasolina 91 (Panamá y Colón)", f"B/. {precios['gasolina_91']:.3f} por litro")
 st.sidebar.caption(
     f"Gasolina 95: B/. {precios['gasolina_95']:.3f} · Diésel: B/. {precios['diesel']:.3f}\n\n"
@@ -103,7 +103,7 @@ if st.sidebar.button("Guardar historial"):
 # ---------------------------------------------------------------------------
 # Encabezado y pestañas
 # ---------------------------------------------------------------------------
-st.title("🚗 ¿Cuánto te cuesta tu carro al mes?")
+st.title("¿Cuánto te cuesta tu carro al mes?")
 st.write("Calcula el costo en combustible y el CO₂ de tu carro para ir al trabajo, con datos oficiales.")
 
 (tab_catalogo, tab_gasto, tab_comparar, tab_otro,
@@ -218,7 +218,7 @@ with tab_estadisticas:
     st.markdown("**Sedán vs. SUV en el catálogo**")
     st.dataframe(reportes.comparar_tipos(catalogo), hide_index=True)
 
-# ---------- 7. Historia 2021–2026 ----------
+# ---------- 7. historia 2021–2026 ----------
 with tab_historia:
     st.subheader("¿Qué cambió más desde 2021: los carros o el precio?")
 
